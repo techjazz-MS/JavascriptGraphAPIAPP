@@ -1,0 +1,309 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="">
+
+    <title>Microsoft Authentication with MSAL.js</title>
+
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B"
+        crossorigin="anonymous">
+
+    <!-- Custom styles for this template -->
+    <link href="css/style.css" rel="stylesheet">
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> 
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <a class="navbar-brand" href="#">JavascriptMSAL Application</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <!-- <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Link</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+              <div class="dropdown-menu" aria-labelledby="dropdown01">
+                <a class="dropdown-item" href="#">Action</a>
+                <a class="dropdown-item" href="#">Another action</a>
+                <a class="dropdown-item" href="#">Something else here</a>
+              </div>
+            </li>
+          </ul>
+          <form class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+          </form>
+        </div> -->
+    </nav>
+
+    <main role="main">
+        <!-- Main jumbotron for a primary marketing message or call to action -->
+        <div class="jumbotron">
+            <div class="container">
+                <h1 class="display-3">Hello,
+                    <span id="name">there</span>.
+                </h1>
+                <div id="form_input">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="clientid_label">Client ID</span>
+                            <span class="input-group-text" data-toggle="tooltip" data-placement="top" title="If you use a custom Client ID, you will need to add this website's url to the list of reply urls.">&#128712;</span>
+                        </div>
+                        <input type="text" class="form-control" aria-label="Default" aria-describedby="clientid_label" value="15f96222-49fb-4be3-a9fd-aed6a53a2da1"
+                            id="clientid_input">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="authority_select">Authority</label>
+                        </div>
+                        <select class="custom-select" id="authority_select">
+                            <option value="common" selected>/common</option>
+                            <option value="organizations">/organizations</option>
+                        </select>
+    
+                    </div>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="scopes_label">Scopes</span>
+                        </div>
+                        <input type="text" class="form-control" aria-label="Default" aria-describedby="scopes_label" value="https://graph.microsoft.com/user.read"
+                            id="scopes_input">
+                    </div>
+                </div>
+
+                <p id="sign_in_text" class="token">Sign in with your Microsoft Account.</p>
+                <p>
+                    <a class="btn btn-primary btn-lg" role="button" id="sign_in_button">Sign In &raquo;</a>
+                    <a class="btn btn-success btn-lg" role="button" id="logout_button" onclick="signOut()" hidden>Logout &raquo;</a>
+                </p>
+            </div>
+        </div>
+        <div class="container">
+            <!-- Example row of columns -->
+            <div class="card text-left">
+                <div class="card-header">
+                  <ul class="nav nav-tabs card-header-tabs" id="token-list" role="tablist">
+                    <li class="nav-item">
+                      <a class="nav-link active" href="#id_token_container"  data-toggle="tab" aria-controls="id_token_container" aria-selected="true">ID Token</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#access_token_container" data-toggle="tab" aria-controls="access_token_container" aria-selected="false">Access Token</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#userProfile_container" data-toggle="tab" aria-controls="userProfile_container" aria-selected="false">User Profile</a>
+                      </li>
+                  </ul>
+                </div>
+                <div class="tab-content" id="tab-content">
+                    <div class="tab-pane fade show active" id="id_token_container" hidden>
+                        <h4 class="mt-2">ID Token</h4>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h5>Raw JWT</h5>
+                                <hr>
+                                <p id="jwt_raw_id" class="token"></p>
+                            </div>
+                            <div class="col-md-8">
+                                <h5>JWT Decoded Output</h5>
+                                <hr>
+                                <div id="jwt_decoded_output_id">
+                                    <div id="message_id"></div>
+                                    <h5>Header</h5>
+                                    <div id="header_id" class="jwt token"></div>
+                                    <br />
+                                    <h5>Payload</h5>
+                                    <div id="payload_id" class="jwt token"></div>
+                                    <br />
+                                    <h5>Signature</h5>
+                                    <div id="signature_id" class="token"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="access_token_container" hidden>
+                        <h4 class="mt-2">Access Token</h4>
+                        <hr>
+                        <div class="row">
+                    <div class="col-md-4">
+                        <h5>Raw JWT</h5>
+                        <hr>
+                        <p id="jwt_raw_access" class="token"></p>
+                    </div>
+                    <div class="col-md-8">
+                        <h5>JWT Decoded Output</h5>
+                        <hr>
+                        <div id="jwt_decoded_output_id">
+                            <div id="message_access"></div>
+                            <h5>Header</h5>
+                            <div id="header_access" class="jwt token"></div>
+                            <br />
+                            <h5>Payload</h5>
+                            <div id="payload_access" class="jwt token"></div>
+                            <br />
+                            <h5>Signature</h5>
+                            <div id="signature_access" class="token"></div>
+                        </div>
+                    </div>
+                </div>
+                    </div>
+                    <div class="tab-pane fade" id="userProfile_container" hidden>
+                        <h4 class="mt-2">User Profile</h4>
+                        <hr>
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <div class="profile-card">
+                                    <table class="table table-striped text-left">
+                                        <tr>
+                                            <td>Name: </td>
+                                            <td id="displayName"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>E-Mail: </td>
+                                            <td id="mail"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Work Phone: </td>
+                                            <td id="businessPhones"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Mobile: </td>
+                                            <td id="mobilePhone"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>City: </td>
+                                            <td id="city"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Company: </td>
+                                            <td id="companyName"></td>
+                                        </tr>
+                                        <!-- <tr>
+                                            <td>Location: </td>
+                                            <td id="usageLocation"></td>
+                                        </tr> -->
+                                        <tr>
+                                            <td>Type: </td>
+                                            <td id="userType"></td>
+                                        </tr>
+                                    </table>
+                                    <!-- <label>Name: </label><div id="displayName"></div>
+                                    <label>E-Mail: </label><div id="mail"></div>
+                                    <label>Work Phone: </label><div id="businessPhones"></div>
+                                    <label>Mobile: </label><div id="mobilePhone"></div>
+                                    <label>City: </label><div id="city"></div>
+                                    <label>Company: </label><div id="companyName"></div>
+                                    <label>Location: </label><div id="location"></div>
+                                    <label>Type: </label><div id="userType"></div> -->
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="profile_img">
+                                    <img id="image" class="image"></img>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    </div>
+                </div>
+            </div>
+            <!-- <div>
+                <div id="json"></div>
+            </div> -->
+            <!-- Container for ID Token -->
+            <!-- <div id="id_token_container" hidden>
+                <h2>ID Token</h2>
+                <hr>
+                <div class="row">
+                    <div class="col-md-4">
+                        <h3>Raw JWT</h3>
+                        <p id="jwt_raw_id" class="token"></p>
+                    </div>
+                    <div class="col-md-8">
+                        <h3>JWT Decoded Output</h3>
+                        <div id="jwt_decoded_output_id">
+                            <div id="message_id"></div>
+                            <h4>Header</h4>
+                            <div id="header_id" class="jwt token"></div>
+                            <br />
+                            <h4>Payload</h4>
+                            <div id="payload_id" class="jwt token"></div>
+                            <br />
+                            <h4>Signature</h4>
+                            <div id="signature_id" class="token"></div>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+            <br>
+            <br>
+            <!-- Container for Access_Token -->
+            <!-- <div id="access_token_container" hidden>
+                <h2>Access Token</h2>
+                <hr>
+                <div class="row">
+                    <div class="col-md-4">
+                        <h3>Raw JWT</h3>
+                        <p id="jwt_raw_access" class="token"></p>
+                    </div>
+                    <div class="col-md-8">
+                        <h3>JWT Decoded Output</h3>
+                        <div id="jwt_decoded_output_access">
+                            <div id="message_access"></div>
+                            <h4>Header</h4>
+                            <div id="header_access" class="jwt token"></div>
+                            <br />
+                            <h4>Payload</h4>
+                            <div id="payload_access" class="jwt token"></div>
+                            <br />
+                            <h4>Signature</h4>
+                            <div id="signature_access" class="token"></div>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+        </div>
+        <!-- /container -->
+    </main>
+    <footer class="footer">
+        <div class="container text-center">
+            <span class="text-muted">Created by
+                <a href="">Sourav Mishra</a> - Source on
+                <a href="">GitHub</a> - Using
+                <a href="https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-core">MSAL.js</a>
+            </span>
+        </div>
+    </footer>
+    
+    <!-- Custom JS-->
+    <script src="js/msal.min.js"></script>
+    <script src="js/sign_in.js"></script>
+    <script src="js/jwt_decoder.js"></script>
+    <script src="js/graph_call.js"></script>
+</body>
+
+</html>
