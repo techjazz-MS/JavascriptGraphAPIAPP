@@ -156,6 +156,7 @@ function profileImage(e) {
     var imageUrl = urlCreator.createObjectURL(this.response);
     console.log(imageUrl);
     document.querySelector("#image").src = imageUrl;
+    document.getElementById("userProfile_container").hidden = false;
 }
 
 
