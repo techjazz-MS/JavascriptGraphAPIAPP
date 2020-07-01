@@ -137,7 +137,7 @@ function graphAPICallback(data) {
         mobilePhone: data.mobilePhone,
         city: data.city,
         companyName: data.companyName,
-        // location: data.usageLocation,
+        // location: data.usageLocation, 
         userType: data.userType
     }
     

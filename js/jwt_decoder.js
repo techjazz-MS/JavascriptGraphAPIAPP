@@ -67,7 +67,7 @@ function updatePage() {
             document.getElementById('logout_button').hidden = false;
             document.getElementById('form_input').hidden = true;
         }
-        document.getElementById('id_token_container').hidden = false
+        document.getElementById('id_token_container').hidden = false 
     }
 
     if (access_token_global != null) {
